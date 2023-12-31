@@ -1,0 +1,88 @@
+#!/usr/bin/env python
+
+import re
+from gradelib import *
+
+r = Runner(save("xv6.out"))
+
+# sleep
+@test(5, "sleep, no arguments")
+def test_sleep_no_args():
+    r.run_qemu(shell_script([
+        'sleep'
+    ]))
+    r.match(no=["exec .* failed", "$ sleep\n$"])
+
+@test(5, "sleep, returns")
+def test_sleep_no_args():
+    r.run_qemu(shell_script([
+        'sleep',
+        'echo OK'
+    ]))
+    r.match('^OK$', no=["exec .* failed", "$ sleep\n$"])
+
+@test(10, "sleep, makes syscall")
+def test_sleep():
+    r.run_qemu(shell_script([
+        'sleep 10',
+        'echo FAIL'
+    ]), stop_breakpoint('sys_sleep'))
+    r.match('\\$ sleep 10', no=['FAIL'])
+
+# head
+@test(5, "head, no args")
+def head_no_args():
+    r.run_qemu(shell_script([
+        "head",
+        "echo OK"
+    ]))
+    r.match(
+        "OK","usage.*",
+        no=["exec .* failed"]
+    )
+
+@test(5,"head, more args")
+def head_more_args():
+    r.run_qemu(shell_script([
+        "head head_test.txt 3 5",
+        "echo OK"
+    ]))
+    r.match(
+        "OK","usage.*",
+        no=["exec .* failed"]
+    )
+
+@test(5, "head, no n_lines")
+def head_no_n_lines():
+    r.run_qemu(shell_script([
+        "head head_test.txt",
+        "echo OK"
+    ]))
+    r.match(
+        "OK",".*line 10",
+        no=[".*line 11",".*line 11","exec .* failed"]
+    )
+
+@test(5, "head, with n_lines")
+def head_with_n_lines():
+    r.run_qemu(shell_script([
+        "head head_test.txt 3",
+        "echo OK"
+    ]))
+    r.match(
+        "OK",".*line 3",
+        no=[".*line 4",".*line 10","exec .* failed"]
+    )
+
+@test(5, "head, n_lines more than file")
+def head_lines_more_than_file():
+    r.run_qemu(shell_script([
+        "head head_test.txt 20",
+        "echo OK"
+    ]))
+    r.match(
+        "OK",".*line 15",
+        no=["exec .* failed"]
+    )
+
+run_tests()
