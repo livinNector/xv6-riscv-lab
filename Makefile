@@ -132,9 +132,12 @@ UPROGS=\
 	$U/_grind\
 	$U/_wc\
 	$U/_zombie\
+	$U/_head\
+	$U/_sleep\
 
-fs.img: mkfs/mkfs README $(UPROGS)
-	mkfs/mkfs fs.img README $(UPROGS)
+
+fs.img: mkfs/mkfs README head_test.txt $(UPROGS)
+	mkfs/mkfs fs.img README head_test.txt $(UPROGS)
 
 -include kernel/*.d user/*.d
 
