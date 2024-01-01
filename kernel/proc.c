@@ -681,3 +681,13 @@ procdump(void)
     printf("\n");
   }
 }
+
+// Get the number of procs currently not in UNUSED state
+int getnprocs(){
+  struct proc *p;
+  int n_procs = 0;
+  for (p = proc; p < &proc[NPROC]; p++)
+    if (p->state != UNUSED)
+      n_procs++;
+  return n_procs;
+}

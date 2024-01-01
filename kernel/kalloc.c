@@ -80,3 +80,17 @@ kalloc(void)
     memset((char*)r, 5, PGSIZE); // fill with junk
   return (void*)r;
 }
+
+// Get the free memory in by traversing through the freelist
+//  and counting the number of free pages.
+unsigned long kgetfree()
+{
+  struct run *r = kmem.freelist;
+  unsigned long n_free_pages = 0;
+  while (r)
+  {
+    n_free_pages += 1;
+    r = r->next;
+  }
+  return n_free_pages * PGSIZE;
+}
